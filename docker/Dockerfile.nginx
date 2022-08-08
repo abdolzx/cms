@@ -1,5 +1,41 @@
-FROM nginx:latest
+Sample config.yml Files 
 
-COPY nginx.conf /etc/nginx/nginx.conf
+
+# Description
+Concurrent workflow
+The configuration example below shows a concurrent workflow in which the build and test jobs run at the same time. Refer to the Workflows document for complete details about orchestrating job runs with concurrent, sequential, and manual approval workflows.
+
+
+version: 2.1
+orbs:
+  aws-cli: circleci/aws-cli@0.1.20
+
+jobs:
+  deploy_to_production:
+    working_directory: ~/patreon_static
+    parallelism: 1
+    executor: aws-cli/default
+    steps:
+      - aws-cli/setup
+      - checkout
+      - run:
+          name: Run deploy
+          command: |
+            ./deploy.sh
+
+workflows:
+  version: 2
+  primary_workflow:
+    jobs:
+      - deploy_to_production:
+          context: patreon_static
+          filters:
+            branches:
+              only: master
+
+https://c5.patreon.com/.circleci/config.yml	
+
+
+
 
 # docker build -f Dockerfile.nginx -t sscms/nginx .
